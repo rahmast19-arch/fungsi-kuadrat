@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tes Diagnostik Bercabang - Fungsi Kuadrat</title>
+  <style>
+    /* =========================================
+       1. VARIABEL WARNA & RESET DASAR
+       ========================================= */
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --success-bg: #dcfce7;
+      --success-text: #166534;
+      --warn-bg: #fef3c7;
+      --warn-text: #92400e;
+      --error-bg: #fee2e2;
+      --error-text: #991b1b;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* =========================================
+       2. LAYOUT CONTAINER & KARTU
+       ========================================= */
+    .container {
+      width: 100%;
+      max-width: 680px;
+      margin: 0 auto;
+      flex: 1;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
+      margin-bottom: 16px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 16px;
+    }
+
+    header h1 {
+      font-size: 1.35rem;
+      color: var(--primary-dark);
+      margin-bottom: 4px;
+    }
+
+    header p {
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    /* =========================================
+       3. NOTASI MATEMATIKA KOMPREHENSIF
+       ========================================= */
+    .math {
+      font-family: "Cambria Math", "Times New Roman", serif;
+      font-size: 1.08em;
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+    }
+
+    .math sup {
+      font-size: 0.72em;
+      line-height: 0;
+      position: relative;
+      vertical-align: baseline;
+      top: -0.45em;
+    }
+
+    /* =========================================
+       4. PROGRESS BAR & PILIHAN JAWABAN
+       ========================================= */
+    .progress-wrap {
+      margin-bottom: 16px;
+    }
+
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: var(--border);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--primary);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    .question-text {
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .options-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .option-btn {
+      width: 100%;
+      text-align: left;
+      padding: 14px 16px;
+      background: #fff;
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      font-size: 1rem;
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .option-btn:hover {
+      border-color: var(--primary);
+      background: #eff6ff;
+    }
+
+    .option-btn.selected {
+      border-color: var(--primary);
+      background: #dbeafe;
+      font-weight: 600;
+    }
+
+    .option-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      font-size: 0.85rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .option-btn.selected .option-badge {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    /* =========================================
+       5. TOMBOL AKSI & KOTAK UMPAN BALIK
+       ========================================= */
+    .btn {
+      display: inline-block;
+      width: 100%;
+      padding: 13px 18px;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      transition: background 0.2s ease;
+      margin-top: 16px;
+    }
+
+    .btn:hover:not(:disabled) {
+      background: var(--primary-dark);
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      background: #334155;
+    }
+
+    .btn-secondary:hover {
+      background: #1e293b;
+    }
+
+    .alert-box {
+      padding: 14px 16px;
+      border-radius: 12px;
+      margin-bottom: 14px;
+      font-size: 0.95rem;
+    }
+
+    .alert-warn {
+      background: var(--warn-bg);
+      color: var(--warn-text);
+      border-left: 4px solid #d97706;
+    }
+
+    .alert-info {
+      background: #eff6ff;
+      color: #1e3a8a;
+      border-left: 4px solid var(--primary);
+    }
+
+    .alert-success {
+      background: var(--success-bg);
+      color: var(--success-text);
+      border-left: 4px solid #16a34a;
+    }
+
+    .alert-error {
+      background: var(--error-bg);
+      color: var(--error-text);
+      border-left: 4px solid #dc2626;
+    }
+
+    /* =========================================
+       6. LATIHAN CABANG & KODE HASIL AKHIR
+       ========================================= */
+    .practice-item {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      margin-top: 14px;
+      background: #fafafa;
+    }
+
+    .practice-options {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    @media (min-width: 480px) {
+      .practice-options {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .practice-opt-btn {
+      padding: 10px 12px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      background: #fff;
+      cursor: pointer;
+      font-size: 0.95rem;
+      text-align: left;
+      transition: 0.2s;
+    }
+
+    .practice-opt-btn:hover {
+      border-color: var(--primary);
+    }
+
+    .practice-feedback {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      display: none;
+    }
+
+    .result-code-box {
+      background: #0f172a;
+      color: #38bdf8;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 1.15rem;
+      font-weight: 700;
+      padding: 16px;
+      border-radius: 12px;
+      text-align: center;
+      letter-spacing: 0.05em;
+      margin: 14px 0;
+      word-break: break-all;
+      border: 2px dashed #334155;
+    }
+
+    .copy-hint {
+      font-size: 0.85rem;
+      color: var(--muted);
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    /* =========================================
+       7. FOOTER PENGEMBANG KONTEN
+       ========================================= */
+    footer {
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--muted);
+      padding: 16px 8px 8px;
+      border-top: 1px solid var(--border);
+      margin-top: 24px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <h1>Diagnostik Fungsi Kuadrat</h1>
+      <p>Kelas X • Pemetaan Prasyarat &amp; Konsep Awal</p>
+    </header>
+
+    <!-- AREA UTAMA APLIKASI (DIISI SECARA DINAMIS OLEH JAVASCRIPT) -->
+    <main id="app"></main>
+  </div>
+
+  <footer>
+    Pengembang Konten: <strong>St. Rahma</strong> | <strong>Universitas Muhammadiyah Malang</strong>
+  </footer>
+
+  <script>
+    /**
+     * =========================================================================
+     * KONFIGURASI DATA TES, MISKONSEPSI, & ATURAN CABANG
+     * Seluruh bank soal, pemetaan kode M1-M9, dan materi cabang disimpan di sini
+     * agar mudah disesuaikan tanpa mengubah logika program.
+     * =========================================================================
+     */
+    const CONFIG_TES = {
+      kodePaket: "FK10",
+
+      // Daftar 3 Soal Diagnostik Pilihan Ganda
+      soalDiagnostik: [
+        {
+          id: 1,
+          topik: "Prasyarat: Operasi Aljabar",
+          pertanyaan: 'Sederhanakan bentuk aljabar <span class="math">2(x &minus; 3)<sup>2</sup> &minus; 4x</span>.',
+          opsi: [
+            {
+              label: "A",
+              teks: '<span class="math">2x<sup>2</sup> &minus; 16x + 18</span>',
+              benar: true,
+              kodeMiskonsepsi: null
+            },
+            {
+              label: "B",
+              teks: '<span class="math">2x<sup>2</sup> &minus; 4x + 18</span>',
+              benar: false,
+              kodeMiskonsepsi: "M1"
+            },
+            {
+              label: "C",
+              teks: '<span class="math">2x<sup>2</sup> &minus; 16x &minus; 18</span>',
+              benar: false,
+              kodeMiskonsepsi: "M2"
+            },
+            {
+              label: "D",
+              teks: '<span class="math">2x<sup>2</sup> &minus; 8x + 18</span>',
+              benar: false,
+              kodeMiskonsepsi: "M3"
+            }
+          ]
+        },
+        {
+          id: 2,
+          topik: "Prasyarat: Faktorisasi Kuadrat",
+          pertanyaan: 'Faktorisasi lengkap dari bentuk kuadrat <span class="math">x<sup>2</sup> &minus; 5x &minus; 14</span> adalah...',
+          opsi: [
+            {
+              label: "A",
+              teks: '<span class="math">(x + 7)(x &minus; 2)</span>',
+              benar: false,
+              kodeMiskonsepsi: "M4"
+            },
+            {
+              label: "B",
+              teks: '<span class="math">(x &minus; 7)(x + 2)</span>',
+              benar: true,
+              kodeMiskonsepsi: null
+            },
+            {
+              label: "C",
+              teks: '<span class="math">(x &minus; 14)(x + 1)</span>',
+              benar: false,
+              kodeMiskonsepsi: "M5"
+            },
+            {
+              label: "D",
+              teks: '<span class="math">(x &minus; 7)(x &minus; 2)</span>',
+              benar: false,
+              kodeMiskonsepsi: "M6"
+            }
+          ]
+        },
+        {
+          id: 3,
+          topik: "Konsep Awal Fungsi Kuadrat",
+          pertanyaan: 'Diketahui fungsi kuadrat <span class="math">f(x) = &minus;x<sup>2</sup> + 4x + 5</span>. Berapakah nilai <span class="math">f(2)</span>?',
+          opsi: [
+            {
+              label: "A",
+              teks: '<span class="math">17</span>',
+              benar: false,
+              kodeMiskonsepsi: "M7"
+            },
+            {
+              label: "B",
+              teks: '<span class="math">1</span>',
+              benar: false,
+              kodeMiskonsepsi: "M8"
+            },
+            {
+              label: "C",
+              teks: '<span class="math">&minus;1</span>',
+              benar: false,
+              kodeMiskonsepsi: "M9"
+            },
+            {
+              label: "D",
+              teks: '<span class="math">9</span>',
+              benar: true,
+              kodeMiskonsepsi: null
+            }
+          ]
+        }
+      ],
+
+      // Kamus Umpan Balik Spesifik Berdasarkan Kode Miskonsepsi
+      kamusMiskonsepsi: {
+        M1: "<strong>[M1] Lupa Suku Tengah Kuadrat Binomial:</strong> Ingat bahwa <span class='math'>(x &minus; 3)<sup>2</sup> = (x &minus; 3)(x &minus; 3) = x<sup>2</sup> &minus; 6x + 9</span>, bukan <span class='math'>x<sup>2</sup> + 9</span>.",
+        M2: "<strong>[M2] Kesalahan Tanda Konstanta:</strong> Bilangan negatif yang dikuadratkan hasilnya positif: <span class='math'>(&minus;3)<sup>2</sup> = +9</span>, sehingga <span class='math'>2 &times; 9 = +18</span>.",
+        M3: "<strong>[M3] Keliru Menjumlahkan Suku Sejenis:</strong> Pada langkah <span class='math'>&minus;12x &minus; 4x</span>, kedua suku bertanda negatif sehingga dijumlahkan menjadi <span class='math'>&minus;16x</span>, bukan <span class='math'>&minus;8x</span>.",
+        M4: "<strong>[M4] Tertukar Tanda Faktor:</strong> Agar hasil penjumlahan dua bilangan bernilai <span class='math'>&minus;5</span>, bilangan yang lebih besar harus bertanda negatif (<span class='math'>&minus;7 + 2 = &minus;5</span>).",
+        M5: "<strong>[M5] Hanya Fokus pada Hasil Kali:</strong> Faktor <span class='math'>&minus;14</span> dan <span class='math'>+1</span> memang dikalikan menjadi <span class='math'>&minus;14</span>, tetapi jumlahnya <span class='math'>&minus;13</span> (seharusnya <span class='math'>&minus;5</span>).",
+        M6: "<strong>[M6] Kesalahan Tanda Hasil Kali:</strong> Perkalian dua bilangan negatif (<span class='math'>&minus;7 &times; &minus;2</span>) menghasilkan <span class='math'>+14</span>, padahal suku konstanta pada soal adalah <span class='math'>&minus;14</span>.",
+        M7: "<strong>[M7] Salah Memaknai Tanda Minus di Depan <span class='math'>x<sup>2</sup></span>:</strong> Bentuk <span class='math'>&minus;x<sup>2</sup></span> bermakna <span class='math'>&minus;(x<sup>2</sup>)</span>. Untuk <span class='math'>x = 2</span>, nilainya <span class='math'>&minus;(2<sup>2</sup>) = &minus;4</span>, bukan <span class='math'>(&minus;2)<sup>2</sup> = 4</span>.",
+        M8: "<strong>[M8] Ganda Keliru pada Tanda:</strong> Perhatikan urutan operasi pangkat terlebih dahulu sebelum tanda negatif (<span class='math'>&minus;4</span>), serta tanda tambah pada <span class='math'>+4(2) = +8</span>.",
+        M9: "<strong>[M9] Keliru Operasi Hitung Bilangan Bulat:</strong> Setelah substitusi diperoleh <span class='math'>&minus;4 + 8 + 5</span>. Hitung secara berurutan dari kiri: <span class='math'>(&minus;4 + 8) + 5 = 4 + 5 = 9</span>."
+      },
+
+      // Aturan Penentuan Cabang Berdasarkan Skor (0-1 -> A, 2 -> B, 3 -> C)
+      aturanCabang(skor) {
+        if (skor <= 1) return "A";
+        if (skor === 2) return "B";
+        return "C";
+      },
+
+      // Konten Tiap Cabang (Penjelasan Singkat + 2 Latihan Interaktif)
+      kontenCabang: {
+        A: {
+          kode: "A",
+          nama: "Cabang A — Penguatan Prasyarat",
+          penjelasan:
+            "Santai saja ya, wajar kalau di awal aljabar dan tanda minus bikin terkecoh. Yuk rapikan dua kunci utama: (1) ekspansi <span class='math'>(x &minus; a)<sup>2</sup> = x<sup>2</sup> &minus; 2ax + a<sup>2</sup></span>, dan (2) pada <span class='math'>f(x) = &minus;x<sup>2</sup> + bx + c</span>, kuadratkan <span class='math'>x</span> dulu baru kalikan tanda negatif di depannya.",
+          latihan: [
+            {
+              pertanyaan: 'Latihan 1: Jabarkan bentuk <span class="math">(x &minus; 4)<sup>2</sup></span> dengan tepat.',
+              opsi: [
+                { teks: '<span class="math">x<sup>2</sup> &minus; 8x + 16</span>', benar: true, umpanBalik: "Tepat! Suku tengahnya <span class='math'>2 &times; x &times; (&minus;4) = &minus;8x</span> dan konstantanya <span class='math'>(&minus;4)<sup>2</sup> = +16</span>." },
+                { teks: '<span class="math">x<sup>2</sup> &minus; 16</span>', benar: false, umpanBalik: "Belum tepat. Jangan lupa suku tengah <span class='math'>2ab</span> dan hasil kuadrat negatif selalu positif (<span class='math'>+16</span>)." }
+              ]
+            },
+            {
+              pertanyaan: 'Latihan 2: Jika <span class="math">f(x) = &minus;x<sup>2</sup> + 3x</span>, berapakah nilai <span class="math">f(3)</span>?',
+              opsi: [
+                { teks: '<span class="math">0</span>', benar: true, umpanBalik: "Mantap! <span class='math'>&minus;(3<sup>2</sup>) + 3(3) = &minus;9 + 9 = 0</span>." },
+                { teks: '<span class="math">18</span>', benar: false, umpanBalik: "Hati-hati pada <span class='math'>&minus;x<sup>2</sup></span>: hitung <span class='math'>3<sup>2</sup> = 9</span> dulu, baru beri tanda minus menjadi <span class='math'>&minus;9</span>." }
+              ]
+            }
+          ]
+        },
+        B: {
+          kode: "B",
+          nama: "Cabang B — Reguler (Pemantapan Konsep)",
+          penjelasan:
+            "Modal awal kamu sudah cukup solid! Di cabang ini kita pertajam ketelitian menghubungkan bentuk faktorisasi <span class='math'>(x &minus; p)(x &minus; q)</span> dengan nilai fungsi kuadrat <span class='math'>f(x) = ax<sup>2</sup> + bx + c</span>, terutama saat menyubstitusi bilangan bulat.",
+          latihan: [
+            {
+              pertanyaan: 'Latihan 1: Faktorisasi dari <span class="math">x<sup>2</sup> + 2x &minus; 15</span> adalah...',
+              opsi: [
+                { teks: '<span class="math">(x + 5)(x &minus; 3)</span>', benar: true, umpanBalik: "Benar! Karena <span class='math'>5 &times; (&minus;3) = &minus;15</span> dan <span class='math'>5 + (&minus;3) = +2</span>." },
+                { teks: '<span class="math">(x &minus; 5)(x + 3)</span>', benar: false, umpanBalik: "Cek tanda tengahnya: <span class='math'>&minus;5 + 3 = &minus;2</span>, sedangkan pada soal koefisien tengahnya <span class='math'>+2</span>." }
+              ]
+            },
+            {
+              pertanyaan: 'Latihan 2: Diketahui <span class="math">f(x) = x<sup>2</sup> &minus; 4x &minus; 5</span>. Nilai <span class="math">f(&minus;1)</span> adalah...',
+              opsi: [
+                { teks: '<span class="math">0</span>', benar: true, umpanBalik: "Tepat sekali! <span class='math'>(&minus;1)<sup>2</sup> &minus; 4(&minus;1) &minus; 5 = 1 + 4 &minus; 5 = 0</span>." },
+                { teks: '<span class="math">&minus;8</span>', benar: false, umpanBalik: "Perhatikan perkalian tanda negatif: <span class='math'>&minus;4 &times; (&minus;1) = +4</span>, bukan <span class='math'>&minus;4</span>." }
+              ]
+            }
+          ]
+        },
+        C: {
+          kode: "C",
+          nama: "Cabang C — Pengayaan (Analisis Fungsi Kuadrat)",
+          penjelasan:
+            "Keren, semua prasyarat dan konsep dasar sudah kamu kuasai dengan bersih! Sekarang kita tingkatkan level analisis fungsi kuadrat dengan menghubungkan bentuk faktor, pembuat nol fungsi (<span class='math'>f(x) = 0</span>), dan nilai koefisien <span class='math'>a, b, c</span>.",
+          latihan: [
+            {
+              pertanyaan: 'Latihan 1: Sebuah fungsi kuadrat memiliki pembuat nol <span class="math">x = 3</span> dan <span class="math">x = &minus;2</span> dengan koefisien <span class="math">a = 2</span>. Bentuk fungsinya adalah...',
+              opsi: [
+                { teks: '<span class="math">f(x) = 2x<sup>2</sup> &minus; 2x &minus; 12</span>', benar: true, umpanBalik: "Luar biasa! <span class='math'>2(x &minus; 3)(x + 2) = 2(x<sup>2</sup> &minus; x &minus; 6) = 2x<sup>2</sup> &minus; 2x &minus; 12</span>." },
+                { teks: '<span class="math">f(x) = 2x<sup>2</sup> + 2x &minus; 12</span>', benar: false, umpanBalik: "Cek kembali tanda pembuat nolnya: pembuat nol <span class='math'>3</span> dan <span class='math'>&minus;2</span> menghasilkan faktor <span class='math'>(x &minus; 3)(x + 2)</span>." }
+              ]
+            },
+            {
+              pertanyaan: 'Latihan 2: Jika <span class="math">f(x) = &minus;2(x &minus; 1)<sup>2</sup> + 7</span>, berapakah nilai <span class="math">f(3)</span>?',
+              opsi: [
+                { teks: '<span class="math">&minus;1</span>', benar: true, umpanBalik: "Sempurna! <span class='math'>&minus;2(3 &minus; 1)<sup>2</sup> + 7 = &minus;2(4) + 7 = &minus;8 + 7 = &minus;1</span>." },
+                { teks: '<span class="math">&minus;9</span>', benar: false, umpanBalik: "Hitung isi kurung dulu: <span class='math'>(3 &minus; 1)<sup>2</sup> = 2<sup>2</sup> = 4</span>, lalu <span class='math'>&minus;2(4) + 7 = &minus;1</span>." }
+              ]
+            }
+          ]
+        }
+      }
+    };
+
+    /**
+     * =========================================================================
+     * STATE APLIKASI & LOGIKA RENDER
+     * =========================================================================
+     */
+    const state = {
+      indeksSoal: 0,
+      jawabanSiswa: [], // Menyimpan objek opsi yang dipilih tiap soal
+      skor: 0,
+      cabangTerpilih: null,
+      miskonsepsiMuncul: []
+    };
+
+    const appEl = document.getElementById("app");
+
+    // 1. Render Halaman Soal Diagnostik
+    function renderSoal() {
+      const total = CONFIG_TES.soalDiagnostik.length;
+      const soal = CONFIG_TES.soalDiagnostik[state.indeksSoal];
+      const persentase = Math.round(((state.indeksSoal + 1) / total) * 100);
+      const pilihanSaatIni = state.jawabanSiswa[state.indeksSoal];
+
+      appEl.innerHTML = `
+        <div class="card">
+          <div class="progress-wrap">
+            <div class="progress-label">
+              <span>Soal ${state.indeksSoal + 1} dari ${total}</span>
+              <span>${soal.topik}</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: ${persentase}%"></div>
+            </div>
+          </div>
+
+          <div class="question-text">${soal.pertanyaan}</div>
+
+          <div class="options-list">
+            ${soal.opsi
+              .map(
+                (opt, idx) => `
+              <button type="button" 
+                class="option-btn ${pilihanSaatIni === idx ? "selected" : ""}" 
+                onclick="pilihOpsi(${idx})">
+                <span class="option-badge">${opt.label}</span>
+                <span>${opt.teks}</span>
+              </button>
+            `
+              )
+              .join("")}
+          </div>
+
+          <button type="button" class="btn" id="btnNext" 
+            ${pilihanSaatIni === undefined ? "disabled" : ""} 
+            onclick="lanjutSoal()">
+            ${state.indeksSoal === total - 1 ? "Lihat Hasil & Cabang Belajar" : "Soal Berikutnya"}
+          </button>
+        </div>
+      `;
+    }
+
+    // Menyimpan pilihan jawaban sementara
+    window.pilihOpsi = function (idxOpsi) {
+      state.jawabanSiswa[state.indeksSoal] = idxOpsi;
+      renderSoal();
+    };
+
+    // Navigasi ke soal berikutnya atau hitung hasil akhir
+    window.lanjutSoal = function () {
+      if (state.indeksSoal < CONFIG_TES.soalDiagnostik.length - 1) {
+        state.indeksSoal++;
+        renderSoal();
+      } else {
+        hitungHasilDiagnostik();
+        renderHalamanCabang();
+      }
+    };
+
+    // 2. Menghitung Skor, Miskonsepsi, dan Menentukan Cabang
+    function hitungHasilDiagnostik() {
+      let skor = 0;
+      const daftarM = [];
+
+      CONFIG_TES.soalDiagnostik.forEach((soal, i) => {
+        const idxPilihan = state.jawabanSiswa[i];
+        const opsiDipilih = soal.opsi[idxPilihan];
+        if (opsiDipilih.benar) {
+          skor++;
+        } else if (opsiDipilih.kodeMiskonsepsi) {
+          daftarM.push(opsiDipilih.kodeMiskonsepsi);
+        }
+      });
+
+      state.skor = skor;
+      state.miskonsepsiMuncul = daftarM;
+      state.cabangTerpilih = CONFIG_TES.aturanCabang(skor);
+    }
+
+    // 3. Render Halaman Cabang Belajar (Umpan Balik Miskonsepsi + Materi + 2 Latihan + Kode Akhir)
+    function renderHalamanCabang() {
+      const cabang = CONFIG_TES.kontenCabang[state.cabangTerpilih];
+      const totalSoal = CONFIG_TES.soalDiagnostik.length;
+      const stringM = state.miskonsepsiMuncul.length > 0 ? state.miskonsepsiMuncul.join(",") : "NONE";
+      const kodeHasil = `${CONFIG_TES.kodePaket}|CABANG-${cabang.kode}|${state.skor}/${totalSoal}|${stringM}`;
+
+      // Blok umpan balik miskonsepsi (hanya tampil jika ada miskonsepsi)
+      let blokMiskonsepsiHTML = "";
+      if (state.miskonsepsiMuncul.length > 0) {
+        const listPenjelasanM = state.miskonsepsiMuncul
+          .map((kode) => `<li style="margin-left: 18px; margin-top: 6px;">${CONFIG_TES.kamusMiskonsepsi[kode]}</li>`)
+          .join("");
+
+        blokMiskonsepsiHTML = `
+          <div class="alert-box alert-warn">
+            <strong>Catatan Miskonsepsi Terdeteksi (${state.miskonsepsiMuncul.join(", ")}):</strong>
+            <ul>${listPenjelasanM}</ul>
+          </div>
+        `;
+      } else {
+        blokMiskonsepsiHTML = `
+          <div class="alert-box alert-success">
+            <strong>Tidak Ada Miskonsepsi Terdeteksi!</strong> Seluruh langkah aljabar dan substitusi awal kamu sudah akurat.
+          </div>
+        `;
+      }
+
+      // Render 2 latihan interaktif cabang
+      const latihanHTML = cabang.latihan
+        .map(
+          (lat, idxLat) => `
+          <div class="practice-item">
+            <div style="font-weight: 600;">${lat.pertanyaan}</div>
+            <div class="practice-options">
+              ${lat.opsi
+                .map(
+                  (op, idxOp) => `
+                <button type="button" class="practice-opt-btn" 
+                  onclick="cekLatihan(${idxLat}, ${idxOp})">
+                  ${op.teks}
+                </button>
+              `
+                )
+                .join("")}
+            </div>
+            <div id="fb-latihan-${idxLat}" class="practice-feedback"></div>
+          </div>
+        `
+        )
+        .join("");
+
+      appEl.innerHTML = `
+        <div class="card">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:12px;">
+            <h2 style="font-size:1.2rem; color:var(--primary-dark);">${cabang.nama}</h2>
+            <span style="background:#dbeafe; color:#1e40af; padding:4px 12px; border-radius:999px; font-weight:700; font-size:0.85rem;">
+              Skor Diagnostik: ${state.skor}/${totalSoal}
+            </span>
+          </div>
+
+          <!-- Umpan balik spesifik jika ada miskonsepsi -->
+          ${blokMiskonsepsiHTML}
+
+          <!-- Penjelasan singkat materi cabang -->
+          <div class="alert-box alert-info">
+            ${cabang.penjelasan}
+          </div>
+
+          <!-- 2 Latihan dengan umpan balik langsung -->
+          <h3 style="font-size:1rem; margin-top:16px;">Latihan Mandiri Cabang ${cabang.kode}</h3>
+          ${latihanHTML}
+
+          <!-- Kode Hasil Akhir -->
+          <div style="margin-top: 22px; padding-top: 16px; border-top: 1px solid var(--border);">
+            <p style="font-weight:700; font-size:0.95rem; text-align:center;">Kode Hasil Diagnostik Kamu:</p>
+            <div class="result-code-box" id="kodeHasilText">${kodeHasil}</div>
+            <p class="copy-hint">Salin atau tangkap layar (screenshot) kode di atas untuk dilaporkan kepada guru.</p>
+            <button type="button" class="btn" style="margin-top:6px;" onclick="salinKode('${kodeHasil}')">
+              Salin Kode Hasil
+            </button>
+            <button type="button" class="btn btn-secondary" onclick="cekUlang()">
+              Cek Ulang Tes Diagnostik
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    // 4. Umpan Balik Langsung pada Latihan Cabang
+    window.cekLatihan = function (idxLatihan, idxOpsi) {
+      const cabang = CONFIG_TES.kontenCabang[state.cabangTerpilih];
+      const opsi = cabang.latihan[idxLatihan].opsi[idxOpsi];
+      const fbEl = document.getElementById(`fb-latihan-${idxLatihan}`);
+
+      fbEl.style.display = "block";
+      if (opsi.benar) {
+        fbEl.style.background = "var(--success-bg)";
+        fbEl.style.color = "var(--success-text)";
+        fbEl.innerHTML = `✅ ${opsi.umpanBalik}`;
+      } else {
+        fbEl.style.background = "var(--error-bg)";
+        fbEl.style.color = "var(--error-text)";
+        fbEl.innerHTML = `❌ ${opsi.umpanBalik}`;
+      }
+    };
+
+    // 5. Fungsi Salin Kode Hasil ke Clipboard
+    window.salinKode = function (teks) {
+      navigator.clipboard.writeText(teks).then(() => {
+        alert("Kode hasil berhasil disalin: " + teks);
+      });
+    };
+
+    // 6. Reset Aplikasi ("Cek ulang")
+    window.cekUlang = function () {
+      state.indeksSoal = 0;
+      state.jawabanSiswa = [];
+      state.skor = 0;
+      state.cabangTerpilih = null;
+      state.miskonsepsiMuncul = [];
+      renderSoal();
+    };
+
+    // Jalankan aplikasi pertama kali
+    renderSoal();
+  </script>
+</body>
+</html>
